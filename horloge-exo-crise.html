@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Horloge simulée</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      /* margin-top: 100px; */
+      height: 90vh;
+      background-color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-content: center;
+      
+    }
+    #title{
+        margin-bottom: 2em;
+        color: #1423DC;
+        font-weight: bold;
+    }
+    #clock {        
+      font-size: 100px;
+      color: #333;
+    }
+
+    #end{
+        visibility: hidden;
+    }
+  </style>
+</head>
+<body>
+    <div id="title">Horloge exercice de crise</div>
+  <div id="clock">L'horloge démarrera <br>le 08/10/2025 à 7h45</div>
+  <div id="end">Exercice terminé !</div>
+
+  <script>
+    let evt = [
+      {
+        action: "4",
+        h_reelle: "08/08/2025 07:45",
+        h_simul: "08/08/2025 07:45"
+      },
+      {
+        action: "6",
+        h_reelle: "08/08/2025 08:00",
+        h_simul: "08/08/2025 08:00"
+      },
+      {
+        action: "7",
+        h_reelle: "08/08/2025 08:20",
+        h_simul: "08/08/2025 08:45"
+      },
+      {
+        action: "8",
+        h_reelle: "08/08/2025 08:30",
+        h_simul: "08/08/2025 09:00"
+      },
+      {
+        action: "10",
+        h_reelle: "08/08/2025 08:50",
+        h_simul: "08/08/2025 09:20"
+      },
+      {
+        action: "11",
+        h_reelle: "08/08/2025 09:00",
+        h_simul: "08/08/2025 11:00"
+      },
+      {
+        action: "12",
+        h_reelle: "08/08/2025 09:10",
+        h_simul: "08/08/2025 11:30"
+      },
+      {
+        action: "12Bis",
+        h_reelle: "08/08/2025 09:15",
+        h_simul: "08/08/2025 11:45"
+      },
+      {
+        action: "13",
+        h_reelle: "08/08/2025 09:20",
+        h_simul: "08/08/2025 14:00"
+      },
+      {
+        action: "14",
+        h_reelle: "08/08/2025 09:30",
+        h_simul: "08/08/2025 14:30"
+      },
+      {
+        action: "15",
+        h_reelle: "08/08/2025 09:45",
+        h_simul: "08/08/2025 16:00"
+      },
+      //J2
+      {
+        action: "17",
+        h_reelle: "08/08/2025 10:00",
+        h_simul: "09/08/2025 08:00"
+      },
+      {
+        action: "19",
+        h_reelle: "08/08/2025 10:20",
+        h_simul: "09/08/2025 08:30"
+      },
+      {
+        action: "21",
+        h_reelle: "08/08/2025 10:25",
+        h_simul: "09/08/2025 09:30"
+      },
+      {
+        action: "22",
+        h_reelle: "08/08/2025 10:30",
+        h_simul: "09/08/2025 11:00"
+      },
+      {
+        action: "24",
+        h_reelle: "08/08/2025 10:40",
+        h_simul: "09/08/2025 12:00"
+      },
+      {
+        action: "25",
+        h_reelle: "08/08/2025 10:45",
+        h_simul: "09/08/2025 12:45"
+      },
+      {
+        action: "26",
+        h_reelle: "08/08/2025 11:00",
+        h_simul: "09/08/2025 14:00"
+      },
+      {
+        action: "27",
+        h_reelle: "08/08/2025 11:15",
+        h_simul: "09/08/2025 15:00"
+      },     
+      {
+        action: "28",
+        h_reelle: "08/08/2025 11:30",
+        h_simul: "09/08/2025 16:00"
+      },
+      {
+        action: "29",
+        h_reelle: "08/08/2025 11:45",
+        h_simul: "09/08/2025 17:00"
+      },
+      {
+        action: "31",
+        h_reelle: "08/08/2025 11:50",
+        h_simul: "09/08/2025 18:00"
+      }
+    ];
+
+    // Convertir une date au format "DD/MM/YYYY HH:mm" en objet Date
+    function parseDate(str) {
+      const [datePart, timePart] = str.split(" ");
+      const [day, month, year] = datePart.split("/");
+      const [hour, minute] = timePart.split(":");
+      return new Date(`${year}-${month}-${day}T${hour}:${minute}:00`);
+    }
+
+    // Initialisation
+    const heure_simul_finale = parseDate(evt[evt.length - 1].h_simul) //pour arret de l'horloge
+
+
+    let index_etape_en_cours = 0
+    // let i = 1;
+    let end = false; //indique la fin de l'exercice
+    function updateSimulatedClock() {
+               
+        let date_exo_crise = new Date(parseDate(evt[0].h_reelle))
+        let index_etape_en_cours = detect_evt_en_cours()
+        
+        if ((new Date() >= date_exo_crise) && (end !== true)) {
+       
+
+            let nb_seconds = ecart(evt[index_etape_en_cours], evt[index_etape_en_cours + 1])
+
+            let heure_simulee_depart = new Date(parseDate(evt[index_etape_en_cours].h_simul))
+            let now = new Date()
+            
+            now.setHours(heure_simulee_depart.getHours())
+            now.setMinutes(heure_simulee_depart.getMinutes())
+            now.setSeconds(heure_simulee_depart.getSeconds()+now.getSeconds()*nb_seconds) 
+
+
+            const simulTime = new Date(now.getTime());
+            const nextTime = new Date(parseDate(evt[index_etape_en_cours+1].h_simul))
+
+            if (simulTime <= heure_simul_finale){ //tant qu'on a pas atteint la fin du jeu
+
+                if (simulTime >= nextTime) {
+                    index_etape_en_cours++ //passage a l'étape suivante
+                    // i = 1; //réinitialisation du i
+                }
+
+                const hours = String(simulTime.getHours()).padStart(2, '0');
+                const minutes = String(simulTime.getMinutes()).padStart(2, '0');
+                const seconds = String(simulTime.getSeconds()).padStart(2, '0');
+
+                document.getElementById('clock').textContent = `${heure_simulee_depart.toLocaleDateString("fr-FR")} ${hours}:${minutes}`//:${seconds}`;
+
+                // i++
+            } else {
+                end = true;
+                document.getElementById('end').style.visibility = "visible"
+            }
+
+        }
+
+        
+    }
+
+
+    function ecart(etape_en_cours, etape_suivante){
+        let ecart_reel = parseDate(etape_suivante.h_reelle) - parseDate(etape_en_cours.h_reelle)
+        let ecart_fictif = parseDate(etape_suivante.h_simul) - parseDate(etape_en_cours.h_simul)
+        
+        let vitesse = ecart_fictif / ecart_reel;
+        return vitesse;
+    }
+
+    function detect_evt_en_cours(){
+        let now = new Date();
+        let etape = 0;
+
+        for (let e of evt)
+            if (parseDate(e.h_reelle) < now)
+                etape++
+
+        return etape-1
+    }
+
+
+    setInterval(updateSimulatedClock, 1000);
+    updateSimulatedClock();
+  </script>
+</body>
+</html>
+
